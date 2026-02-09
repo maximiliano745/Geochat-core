@@ -1,0 +1,20 @@
+{
+  "project": "GeoChat",
+  "partnership": {
+    "partner_capital_100": {
+      "role": "Socio Capitalista / Formalidad",
+      "share": 40,
+      "status": "Capital 100% provisto"
+    },
+    "founder_work_laboratory": {
+      "role": "Idea / Trabajo / Laboratorio",
+      "share": 60,
+      "status": "Activo"
+    }
+  },
+  "assets": {
+    "type": "PAXG",
+    "description": "Oro digital en Blockchain",
+    "custody": "Sovereign Digital Vault (No centralizado)"
+  }
+}
