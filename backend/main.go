@@ -10,21 +10,33 @@ import (
 	"sync"
 )
 
-// Estructura de datos para el Pueblo (Cargada en Memoria)
+// AppData: Estructura fiel a tu db.json estratégico
 type AppData struct {
-	Users interface{} `json:"users"` // Aquí puedes mapear la estructura de tu db.json
+	Project     string `json:"project"`
+	Partnership struct {
+		PartnerCapital struct {
+			Share int `json:"share"`
+		} `json:"partner_capital_100"`
+		FounderWork struct {
+			Share int `json:"share"`
+		} `json:"founder_work_laboratory"`
+	} `json:"partnership"`
+	Assets struct {
+		Type        string `json:"type"`
+		Description string `json:"description"`
+	} `json:"assets"`
 }
-
-var (
-	cachedData AppData
-	dataMutex  sync.RWMutex // Para que varios usuarios lean a la vez sin chocar
-)
 
 // Estructura para el Hash de Voz
 type VoiceAuth struct {
 	UserHash string `json:"user_hash"`
 	DeviceID string `json:"device_id"`
 }
+
+var (
+	cachedData AppData
+	dataMutex  sync.RWMutex
+)
 
 // Middleware CORS
 func enableCORS(next http.HandlerFunc) http.HandlerFunc {
@@ -40,16 +52,23 @@ func enableCORS(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-// Función para cargar datos al inicio (El Soberano no espera)
+// Carga datos respetando la jerarquía del Socio
 func loadData() {
-	// Buscamos la ruta absoluta de forma inteligente
 	wd, _ := os.Getwd()
-	// Subimos un nivel si estamos en backend para llegar a la raíz
 	dbPath := filepath.Join(wd, "..", "data", "db.json")
 
 	file, err := os.ReadFile(dbPath)
 	if err != nil {
-		log.Printf("⚠️ Alerta: No se encontró db.json en %s. Usando memoria limpia.", dbPath)
+		log.Printf("⚠️ Alerta: db.json no encontrado en %s. Inicializando valores de emergencia.", dbPath)
+		
+		dataMutex.Lock()
+		// Inicialización manual siguiendo la nueva estructura
+		cachedData.Project = "GeoChat Core (Local)"
+		cachedData.Partnership.FounderWork.Share = 60
+		cachedData.Partnership.PartnerCapital.Share = 40
+		cachedData.Assets.Type = "PAXG"
+		cachedData.Assets.Description = "Reserva Oro (Esperando DB)"
+		dataMutex.Unlock()
 		return
 	}
 
@@ -59,21 +78,42 @@ func loadData() {
 		log.Printf("❌ Error al procesar JSON: %v", err)
 		return
 	}
-	fmt.Println("✅ Datos del Pueblo cargados en memoria exitosamente.")
+	fmt.Println("✅ Datos del Pueblo (60/40) cargados en RAM exitosamente.")
 }
 
 func main() {
-	// 1. Cargamos datos ANTES de arrancar el servidor
 	loadData()
 
+	// Endpoints
+	http.HandleFunc("/api/stats", enableCORS(statsHandler))
 	http.HandleFunc("/auth/voice-hash", enableCORS(voiceAuthHandler))
 	http.HandleFunc("/status", enableCORS(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "GeoChat: Sistema cargado y veloz.")
 	}))
 
-	port := "0.0.0.0:8080" // Esto permite que Codespaces capture el tráfico
-	fmt.Printf("🚀 GeoChat Backend listo en el puerto 8080...\n")
+	port := "0.0.0.0:8080"
+	fmt.Printf("🚀 GeoChat Backend rugiendo en el puerto 8080...\n")
 	log.Fatal(http.ListenAndServe(port, nil))
+}
+
+//statsHandler: Traduce la estructura estratégica a la visual del Dashboard
+func statsHandler(w http.ResponseWriter, r *http.Request) {
+	dataMutex.RLock()
+	defer dataMutex.RUnlock()
+
+	// Mapeamos los datos de la DB al formato que espera tu App.vue
+	response := map[string]interface{}{
+		"saldo":       1.0, // Base para PAXG
+		"nombreNodo":  cachedData.Project,
+		"mensajes": []string{
+			fmt.Sprintf("Socio Fundador: %d%% (Idea/Lab)", cachedData.Partnership.FounderWork.Share),
+			fmt.Sprintf("Socio Capital: %d%% (Formalidad)", cachedData.Partnership.PartnerCapital.Share),
+			"Activo: " + cachedData.Assets.Description,
+		},
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
 
 func voiceAuthHandler(w http.ResponseWriter, r *http.Request) {
@@ -88,16 +128,11 @@ func voiceAuthHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Acceso instantáneo a los datos (Sin leer disco)
-	dataMutex.RLock()
-	_ = cachedData // Aquí ya tienes los datos listos para comparar el hash
-	dataMutex.RUnlock()
-
-	fmt.Printf("✅ Validación instantánea para: %s\n", auth.UserHash)
+	fmt.Printf("✅ Validación de Hash recibida: %s\n", auth.UserHash)
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
+	json.NewEncoder(w).Encode(map[string]interface{}{
 		"status": "success",
-		"info":   "Acceso ultra-rápido al Vault",
+		"info":   "Bóveda E2E preparada",
 	})
 }
