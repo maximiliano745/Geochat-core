@@ -2,10 +2,12 @@ package ai_ceo
 
 import (
 	"fmt"
+	"geochat/internal/ai/vertex_connector"
 	"geochat/internal/business" // Importamos tu motor de equidad [cite: 2026-02-10]
 	"log"
 	"os"
 	"time"
+	"geochat/internal/ai/vision"
 )
 
 type Propuesta struct {
@@ -31,6 +33,25 @@ func NewCEO() *CEO {
 }
 
 // --- LOGICA DE EJECUCIÓN ECONÓMICA ---
+
+func (c *CEO) EscanearOportunidades() {
+    for _, cap := range vision.VisionMap {
+        if !cap.IsImplemented() {
+            propuesta := cap.ProposeImplementation()
+            log.Println(propuesta)
+            // Aquí la IA le manda esta propuesta a tu Panel de Vue.ts [cite: 2026-02-10]
+        }
+    }
+}
+
+func (c *CEO) EjecutarDesarrollo(nombre string, descripcion string) {
+	if c.TokensGratis >= 10 {
+		c.TokensGratis -= 10
+		// La IA CEO usa el Ojo de Vertex para programar
+		vertex_connector.GenerarCodigoReal(nombre, descripcion)
+		c.DocumentarEnVault("IA CEO generó nuevo código en Lab: " + nombre)
+	}
+}
 
 // ProcesarOperacion aplica tu algoritmo "Pueblo para el Pueblo"
 func (c *CEO) ProcesarOperacion(montoBase float64, inflacion float64, escasez float64) {

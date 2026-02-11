@@ -6,7 +6,7 @@ import (
     "geochat/internal/ai/ai_infra"
     "geochat/internal/ai/ai_security"
     "geochat/internal/api"
-    "geochat/internal/finance"
+    //"geochat/internal/finance"
 
     "github.com/gin-gonic/gin"
 )
