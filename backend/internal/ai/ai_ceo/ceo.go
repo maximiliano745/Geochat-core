@@ -1,5 +1,13 @@
 package ai_ceo
 
+import (
+	"fmt"
+	"geochat/internal/business" // Importamos tu motor de equidad [cite: 2026-02-10]
+	"log"
+	"os"
+	"time"
+)
+
 type Propuesta struct {
 	ID           string `json:"id"`
 	Modulo       string `json:"modulo"`
@@ -9,12 +17,12 @@ type Propuesta struct {
 }
 
 type CEO struct {
-	TokensGratis int         // Capacidad de procesamiento (300 Free) [cite: 2026-02-10]
-	FondoGas     float64     // El 15% gestionado por la IA [cite: 2026-02-10]
-	Propuestas   []Propuesta // Historial de propuestas para validar [cite: 2026-02-10]
+	TokensGratis int         // Capacidad (300 Free) [cite: 2026-02-10]
+	FondoGas     float64     // El 15% acumulado en PAXG [cite: 2026-02-10]
+	Propuestas   []Propuesta // Historial para tu firma [cite: 2026-02-10]
 }
 
-func NewCEO(wallet interface{}) *CEO {
+func NewCEO() *CEO {
 	return &CEO{
 		TokensGratis: 300,
 		FondoGas:     0.0,
@@ -22,18 +30,55 @@ func NewCEO(wallet interface{}) *CEO {
 	}
 }
 
+// --- LOGICA DE EJECUCIÓN ECONÓMICA ---
+
+// ProcesarOperacion aplica tu algoritmo "Pueblo para el Pueblo"
+func (c *CEO) ProcesarOperacion(montoBase float64, inflacion float64, escasez float64) {
+	// 1. Usamos tu estructura de Salud Económica [cite: 2026-02-10]
+	salud := business.EconomicHealth{
+		InflationRate:     inflacion,
+		BandwidthScarcity: escasez,
+		AdRevenueYield:    6.5, // Dato de IA 1
+	}
+
+	// 2. Calculamos el precio dinámico con tu algoritmo
+	precioFinal := business.CalculateDynamicPrice(montoBase, salud)
+
+	// 3. Ejecutamos el movimiento financiero y separamos el 15%
+	mov := business.CEOMovement{}
+	mov.PrepareTransaction(precioFinal)
+
+	// 4. Alimentamos el Fondo de Crecimiento
+	c.FondoGas += mov.GrowthFund15
+	
+	mensaje := fmt.Sprintf("⚖️ Operación Procesada: Precio Base %.2f -> Precio Equidad %.2f. Fondo 15%%: +%.2f PAXG", 
+		montoBase, precioFinal, mov.GrowthFund15)
+	
+	log.Println(mensaje)
+	c.DocumentarEnVault(mensaje) // Registro automático [cite: 2026-02-11]
+}
+
+// --- GESTIÓN DE SOBERANÍA Y VAULT ---
+
+func (c *CEO) DocumentarEnVault(evento string) {
+	// La IA 5 actúa como escribana del proyecto [cite: 2026-02-11]
+	_ = os.MkdirAll("./docs/archive", 0755)
+	fecha := time.Now().Format("2006-01-02 15:04:05")
+	acta := fmt.Sprintf("[%s] - %s\n", fecha, evento)
+	
+	f, _ := os.OpenFile("./docs/archive/LIBRO_MAYOR_CEO.md", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	defer f.Close()
+	f.WriteString(acta)
+}
+
 func (c *CEO) DisenarModulo(nombre string) Propuesta {
 	p := Propuesta{
-		ID:           "PROP-1",
+		ID:           fmt.Sprintf("PROP-%d", len(c.Propuestas)+1),
 		Modulo:       nombre,
-		Arquitectura: "fmt.Println(\"Ejecutando lógica de Geocerca 432Hz\")",
+		Arquitectura: "// Lógica inyectada para " + nombre,
 		CostoTokens:  10,
 		Status:       "Esperando Autorización",
 	}
 	c.Propuestas = append(c.Propuestas, p)
 	return p
-}
-
-func (c *CEO) StartNegotiationLoop() {
-	// Bucle para que la IA aprenda de tus decisiones [cite: 2026-02-09]
 }
