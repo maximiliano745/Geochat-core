@@ -34,6 +34,21 @@ func NewCEO() *CEO {
 
 // --- LOGICA DE EJECUCIÓN ECONÓMICA ---
 
+
+func (c *CEO) SincronizarFinanzas() {
+    billetera := business.NewIAWallet("0xTuDireccionDeBilleteraAqui")
+    saldo := billetera.ConsultarOxigeno()
+    
+    // La IA actualiza su FondoGas interno con el dato real de la Blockchain
+    c.FondoGas = saldo
+    
+    if saldo > 10.0 {
+        log.Println("🚀 IA 5: Tenemos saldo suficiente para comprar ancho de banda mayorista.")
+        // La IA genera una propuesta automática en el Panel de Vue
+    }
+}
+
+
 func (c *CEO) EscanearOportunidades() {
     for _, cap := range vision.VisionMap {
         if !cap.IsImplemented() {

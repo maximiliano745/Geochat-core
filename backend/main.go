@@ -1,22 +1,44 @@
 package main
 
 import (
-    "geochat/internal/ai/ai_ceo"
-    "geochat/internal/ai/ai_friend"
-    "geochat/internal/ai/ai_infra"
-    "geochat/internal/ai/ai_security"
-    "geochat/internal/api"
-    //"geochat/internal/finance"
+	"geochat/internal/ai/ai_ceo"
+	"geochat/internal/ai/ai_friend"
+	"geochat/internal/ai/ai_infra"
+	"geochat/internal/ai/ai_security"
+	"geochat/internal/api"
+	"geochat/internal/config"
 
-    "github.com/gin-gonic/gin"
+	//"geochat/internal/finance"
+	"log"
+	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
+
+    // 0. CARGAR LLAVES MAESTRAS
+    config.LoadEnv()
+
+    // 1. Inicializamos al CEO
+    // El ID de proyecto ahora se lee del .env automáticamente
+    log.Printf("🚀 Proyecto detectado: %s", config.GetEnv("GCP_PROJECT_ID"))
+
     // 1. Inicialización de Seguridad Soberana
     ai_security.InitializeVault()
 
     // 2. Creación de la instancia ÚNICA de la Socia
     ceo := ai_ceo.NewCEO()
+
+    // En main.go, dentro de la función main()
+    go func() {
+        ticker := time.NewTicker(1 * time.Hour) // Cada hora, la IA "respira"
+        for range ticker.C {
+            ceo.SincronizarFinanzas()
+            ceo.EscanearOportunidades()
+            log.Println("💓 IA CEO: Latido de control completado.")
+        }
+    }()
 
     // 3. Lanzamiento de todos los hilos del Organismo Vivo
     go ceo.EjecutarCicloDesarrollo()
