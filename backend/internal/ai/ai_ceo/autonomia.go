@@ -1,4 +1,5 @@
-package main
+package ai_ceo
+
 
 import (
 	"fmt"

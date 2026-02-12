@@ -1,44 +1,25 @@
 package main
 
 import (
-	"sync"
-	"time"
+    "fmt"
+    "geochat/internal/ai/ai_ceo" // Importamos tu paquete del CEO
 )
 
-type CEO struct {
-	sync.RWMutex
-	FondoGas     float64
-	TokensGratis int
-	Propuestas   []Propuesta
-	Stats        Estadisticas
-	Lider        PerfilLider
-}
+func main() {
+    fmt.Println("🚀 [SISTEMA] Iniciando GeoChat Core...")
 
-type Propuesta struct {
-	ID                string
-	Modulo            string
-	Monto             float64
-	ImpactoFinanciero float64 // Añadido para reportes.go
-	Status            string
-	RequiereFirma     bool    // Añadido para la lógica de Vue.ts
-	Tipo              string
-	FirmaDigital      string
-}
+    // 1. Invocamos al CEO
+    // Nota: Necesitas tener la función NewCEO() en tu paquete ai_ceo
+    ceo := ai_ceo.NewCEO()
 
-type EvolucionSoftware struct { // Añadido para que getEvolucionesPendientes funcione
-	Modulo  string
-	Origen  string
-	Impacto string
-}
+    fmt.Printf("✅ [IA CEO] Organismo vivo detectado. Fondo: %.2f PAXG\n", ceo.FondoGas)
 
-type Estadisticas struct {
-	BuenaOndaCount int
-	MalaOndaCount  int
-	Plasticidad    float64
-}
+    // 2. Simulamos el primer análisis
+    fmt.Println("📊 [IA CEO] Ejecutando primer ciclo de desarrollo...")
+    ceo.EjecutarCicloDesarrollo()
 
-type PerfilLider struct {
-	AlineacionEtica float64
-	HistorialFirma  []string
-	UltimaActividad time.Time
+    fmt.Println("🌍 GeoChat está en línea. Esperando órdenes del Líder.")
+
+    // Bloqueamos para que el programa no se cierre
+    select {}
 }
