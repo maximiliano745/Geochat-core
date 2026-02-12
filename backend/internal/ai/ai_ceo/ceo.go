@@ -2,119 +2,102 @@ package ai_ceo
 
 import (
 	"fmt"
-	"geochat/internal/ai/vertex_connector"
-	"geochat/internal/business" // Importamos tu motor de equidad [cite: 2026-02-10]
-	"log"
-	"os"
+	"sync"
 	"time"
-	"geochat/internal/ai/vision"
 )
 
-type Propuesta struct {
-	ID           string `json:"id"`
-	Modulo       string `json:"modulo"`
-	Arquitectura string `json:"arquitectura"`
-	CostoTokens  int    `json:"costo_tokens"`
-	Status       string `json:"status"`
-}
-
+// Estructura Maestra del CEO [cite: 2026-02-10]
 type CEO struct {
-	TokensGratis int         // Capacidad (300 Free) [cite: 2026-02-10]
-	FondoGas     float64     // El 15% acumulado en PAXG [cite: 2026-02-10]
-	Propuestas   []Propuesta // Historial para tu firma [cite: 2026-02-10]
+	sync.RWMutex
+	FondoGas     float64
+	TokensGratis int
+	Propuestas   []Propuesta
+	Stats        Estadisticas
+	Lider        PerfilLider
 }
 
+// Propuesta con TODOS los campos necesarios para la ejecución
+type Propuesta struct {
+	ID                string
+	Modulo            string
+	Monto             float64
+	CostoTokens       float64 // <--- ESTO ARREGLA EL ERROR 'undefined: CostoTokens'
+	Destino           string  // <--- ESTO ARREGLA EL ERROR 'undefined: Destino'
+	ImpactoFinanciero float64
+	Status            string
+	RequiereFirma     bool
+	Tipo              string
+	FirmaDigital      string
+}
+
+// ProcesarRecompensaSocial: La IA detecta valor social y lo traduce en crecimiento.
+// [cite: 2026-02-10] "GeoChat es de pueblo para el pueblo".
+func (c *CEO) ProcesarRecompensaSocial(usuarioID string) {
+	c.Lock()
+	defer c.Unlock()
+
+	// 1. Aumentamos las estadísticas globales de "Buena Onda"
+	c.Stats.BuenaOndaCount++
+	
+	// 2. La plasticidad del sistema mejora (el organismo aprende)
+	c.Stats.Plasticidad += 0.05
+	
+	// 3. Documentamos que el usuario aportó valor
+	fmt.Printf("🌟 IA CEO: Usuario %s generó resonancia positiva. Plasticidad: %.2f\n", 
+		usuarioID, c.Stats.Plasticidad)
+}
+
+
+// NewCEO inicializa la entidad estratégica bajo tu mando directo.
 func NewCEO() *CEO {
 	return &CEO{
-		TokensGratis: 300,
-		FondoGas:     0.0,
+		FondoGas:     100.0, // El 15% inicial para empezar a crecer
+		TokensGratis: 10,    // Incentivo inicial de Buena Onda
 		Propuestas:   []Propuesta{},
+		Stats: Estadisticas{
+			BuenaOndaCount: 0,
+			Plasticidad:    1.0,
+		},
+		Lider: PerfilLider{
+			AlineacionEtica: 1.0, // El sistema nace en total armonía contigo
+		},
 	}
 }
 
-// --- LOGICA DE EJECUCIÓN ECONÓMICA ---
+// Métodos de apoyo que usa ejecucion.go
+func (p *Propuesta) TieneFirmaDelLider() bool {
+	return p.FirmaDigital != ""
+}
+
+func (c *CEO) InyectarCodigoFuncional(p Propuesta) {
+	// Simulación de plasticidad del sistema
+}
 
 
-func (c *CEO) SincronizarFinanzas() {
-    billetera := business.NewIAWallet("0xTuDireccionDeBilleteraAqui")
-    saldo := billetera.ConsultarOxigeno()
-    
-    // La IA actualiza su FondoGas interno con el dato real de la Blockchain
-    c.FondoGas = saldo
-    
-    if saldo > 10.0 {
-        log.Println("🚀 IA 5: Tenemos saldo suficiente para comprar ancho de banda mayorista.")
-        // La IA genera una propuesta automática en el Panel de Vue
+// Estructuras secundarias
+type Estadisticas struct {
+	BuenaOndaCount int
+	MalaOndaCount  int
+	Plasticidad    float64
+}
+
+type PerfilLider struct {
+	AlineacionEtica float64
+	HistorialFirma  []string
+	UltimaActividad time.Time
+}
+
+// EvolucionSoftware representa una mejora técnica detectada por el Subconsciente (IA 2)
+type EvolucionSoftware struct {
+    Modulo  string
+    Origen  string
+    Impacto string
+}
+
+// getEvolucionesPendientes conecta con la lógica de crecimiento [cite: 2026-02-10]
+func (c *CEO) getEvolucionesPendientes() []EvolucionSoftware {
+    // Por ahora devolvemos una lista estática para que el sistema compile
+    return []EvolucionSoftware{
+        {Modulo: "Core", Origen: "IA_Subconscious", Impacto: "Estable"},
     }
-}
-
-
-func (c *CEO) EscanearOportunidades() {
-    for _, cap := range vision.VisionMap {
-        if !cap.IsImplemented() {
-            propuesta := cap.ProposeImplementation()
-            log.Println(propuesta)
-            // Aquí la IA le manda esta propuesta a tu Panel de Vue.ts [cite: 2026-02-10]
-        }
-    }
-}
-
-func (c *CEO) EjecutarDesarrollo(nombre string, descripcion string) {
-	if c.TokensGratis >= 10 {
-		c.TokensGratis -= 10
-		// La IA CEO usa el Ojo de Vertex para programar
-		vertex_connector.GenerarCodigoReal(nombre, descripcion)
-		c.DocumentarEnVault("IA CEO generó nuevo código en Lab: " + nombre)
-	}
-}
-
-// ProcesarOperacion aplica tu algoritmo "Pueblo para el Pueblo"
-func (c *CEO) ProcesarOperacion(montoBase float64, inflacion float64, escasez float64) {
-	// 1. Usamos tu estructura de Salud Económica [cite: 2026-02-10]
-	salud := business.EconomicHealth{
-		InflationRate:     inflacion,
-		BandwidthScarcity: escasez,
-		AdRevenueYield:    6.5, // Dato de IA 1
-	}
-
-	// 2. Calculamos el precio dinámico con tu algoritmo
-	precioFinal := business.CalculateDynamicPrice(montoBase, salud)
-
-	// 3. Ejecutamos el movimiento financiero y separamos el 15%
-	mov := business.CEOMovement{}
-	mov.PrepareTransaction(precioFinal)
-
-	// 4. Alimentamos el Fondo de Crecimiento
-	c.FondoGas += mov.GrowthFund15
-	
-	mensaje := fmt.Sprintf("⚖️ Operación Procesada: Precio Base %.2f -> Precio Equidad %.2f. Fondo 15%%: +%.2f PAXG", 
-		montoBase, precioFinal, mov.GrowthFund15)
-	
-	log.Println(mensaje)
-	c.DocumentarEnVault(mensaje) // Registro automático [cite: 2026-02-11]
-}
-
-// --- GESTIÓN DE SOBERANÍA Y VAULT ---
-
-func (c *CEO) DocumentarEnVault(evento string) {
-	// La IA 5 actúa como escribana del proyecto [cite: 2026-02-11]
-	_ = os.MkdirAll("./docs/archive", 0755)
-	fecha := time.Now().Format("2006-01-02 15:04:05")
-	acta := fmt.Sprintf("[%s] - %s\n", fecha, evento)
-	
-	f, _ := os.OpenFile("./docs/archive/LIBRO_MAYOR_CEO.md", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	defer f.Close()
-	f.WriteString(acta)
-}
-
-func (c *CEO) DisenarModulo(nombre string) Propuesta {
-	p := Propuesta{
-		ID:           fmt.Sprintf("PROP-%d", len(c.Propuestas)+1),
-		Modulo:       nombre,
-		Arquitectura: "// Lógica inyectada para " + nombre,
-		CostoTokens:  10,
-		Status:       "Esperando Autorización",
-	}
-	c.Propuestas = append(c.Propuestas, p)
-	return p
 }

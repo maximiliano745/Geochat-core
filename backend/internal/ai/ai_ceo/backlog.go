@@ -1,38 +1,62 @@
 package ai_ceo
 
 import (
-	"fmt"
-	"log"
+    "fmt"
+    "log"
+    "time"
 )
 
 type Funcionalidad struct {
-	Nombre      string
-	Descripcion string
-	Estado      string // "Pendiente", "En_Sandbox", "Listo_Para_Firma"
-	Costo       int    
+    Nombre      string
+    Descripcion string
+    Estado      string 
+    Costo       float64 // Cambiado a float64 para coincidir con el CEO
 }
 
-// Mapa de Ruta: 100 Core, 100 Confianza, 100 Economía [cite: 2026-02-10]
 var BacklogPrioritario = []Funcionalidad{
-	{"Native Red & Mapa", "Sincronización GPS real-time", "Pendiente", 100},
-	{"Geocercas & Biometría", "POIs y 2FA Vocal", "Pendiente", 100},
-	{"Mercado P2P", "Billetera e Intercambio", "Pendiente", 100},
+    {
+        Nombre:      "Native Red & Mapa",
+        Descripcion: "Sincronización GPS real-time y malla Mesh soberana",
+        Estado:      "Pendiente",
+        Costo:       100.0,
+    },
+    {
+        Nombre:      "Geocercas & Biometría",
+        Descripcion: "POIs dinámicos y validación vocal 2FA para el Vault",
+        Estado:      "Pendiente",
+        Costo:       100.0,
+    },
+    {
+        Nombre:      "Mercado P2P",
+        Descripcion: "Intercambio de energía e internet sin intermediarios",
+        Estado:      "Pendiente",
+        Costo:       100.0,
+    },
 }
 
 func (c *CEO) EjecutarCicloDesarrollo() {
-	for i, f := range BacklogPrioritario {
-		if f.Estado == "Pendiente" && c.TokensGratis >= f.Costo {
-			c.TokensGratis -= f.Costo
-			nueva := Propuesta{
-				ID:           fmt.Sprintf("DEV-%d", i),
-				Modulo:       f.Nombre,
-				Arquitectura: fmt.Sprintf("// Código para: %s", f.Descripcion),
-				CostoTokens:  f.Costo,
-				Status:       "Esperando Autorización",
-			}
-			c.Propuestas = append(c.Propuestas, nueva)
-			BacklogPrioritario[i].Estado = "En_Sandbox"
-			log.Printf("CEO: Generando propuesta para %s [Costo: %d]\n", f.Nombre, f.Costo)
-		}
-	}
+    c.Lock()
+    defer c.Unlock()
+
+    for i, f := range BacklogPrioritario {
+        // Convertimos el costo a entero para la comparación si TokensGratis es int
+        if f.Estado == "Pendiente" && c.TokensGratis >= int(f.Costo) {
+            c.TokensGratis -= int(f.Costo)
+            
+            nueva := Propuesta{
+                ID:                fmt.Sprintf("DEV-%d-%d", i, time.Now().Unix()),
+                Modulo:            f.Nombre,
+                // Usamos 'Tipo' en lugar de 'Arquitectura' porque es lo que definimos en ceo.go
+                Tipo:              fmt.Sprintf("ARQ: %s", f.Descripcion),
+                CostoTokens:       f.Costo, 
+                Status:            "Esperando Autorización (Pueblo)",
+                RequiereFirma:     true,
+            }
+            
+            c.Propuestas = append(c.Propuestas, nueva)
+            BacklogPrioritario[i].Estado = "En_Sandbox"
+            
+            log.Printf("🤖 IA CEO: Transformando idea '%s' en ADN técnico. ID: %s", f.Nombre, nueva.ID)
+        }
+    }
 }

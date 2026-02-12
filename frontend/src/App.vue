@@ -9,7 +9,7 @@ interface StatsResponse {
   mensajes: string[];
 }
 
-// URL de tu Codespace (Asegúrate de que el puerto 8080 sea PUBLIC en la pestaña Ports)
+// URL de tu Codespace
 const API_BASE = 'https://symmetrical-acorn-5xgw65wwgr6f4wrx-8080.app.github.dev'
 
 const saldoOro = ref<number>(0)
@@ -17,21 +17,24 @@ const nombreNodo = ref<string>('Buscando señal del Pueblo...')
 const mensajes = ref<string[]>([])
 const modoTesla = ref<boolean>(false)
 const cargando = ref<boolean>(true)
-const vaultLocked = ref<boolean>(true) // Estado de la Bóveda E2E
+const vaultLocked = ref<boolean>(true)
 
-// Computed para calcular el 15% simbólico del Modo Tesla [cite: 2026-02-09]
+// --- LÓGICA DE IMPACTO AVELLANEDA (IA 1) ---
+const porcentajeDescuento = ref<number>(25) // Subsidio negociado por IA 1
+const fondoIA = computed(() => saldoOro.value * 0.15) // El 15% para el Pueblo [cite: 2026-02-10]
+
+// Computed para calcular el aporte simbólico del Modo Tesla
 const aporteComunitario = computed(() => (saldoOro.value * 0.15).toFixed(4))
 
 const actualizarDatos = async () => {
   try {
     cargando.value = true
-    // Llamada al corazón de Go
     const res = await axios.get<StatsResponse>(`${API_BASE}/api/stats`)
     
     saldoOro.value = res.data.saldo
     nombreNodo.value = res.data.nombreNodo
     mensajes.value = res.data.mensajes
-    vaultLocked.value = false // Si el nodo responde, la bóveda se sincroniza
+    vaultLocked.value = false 
   } catch (error) {
     console.error("⚠️ Error de conexión soberana:", error)
     nombreNodo.value = "Nodo Desconectado - Verificá el Backend en Go"
@@ -43,7 +46,6 @@ const actualizarDatos = async () => {
 
 const toggleTesla = () => {
   modoTesla.value = !modoTesla.value
-  // Notificación interna [cite: 2026-02-02]
   const nuevoMsg = modoTesla.value 
     ? "✨ Modo Tesla Activo: Compartiendo red y energía." 
     : "⏸️ Modo Tesla en espera.";
@@ -82,6 +84,21 @@ onMounted(actualizarDatos)
           <p>Confianza del Pueblo: 100%</p>
           <div class="bar"><div class="fill" style="width: 100%"></div></div>
         </div>
+      </section>
+
+      <section class="card impact-card">
+        <div class="card-header">
+          <h3>Beneficio Avellaneda</h3>
+          <span class="ia-tag">IA 1 ACTIVE</span>
+        </div>
+        <div class="subsidy-meter">
+          <span class="discount-rate">-{{ porcentajeDescuento }}%</span>
+          <p>Subsidio generado por IA 1 (Ads)</p>
+        </div>
+        <div class="progress-bar-small">
+          <div class="fill-green" :style="{ width: porcentajeDescuento + '%' }"></div>
+        </div>
+        <p class="gas-info">Fondo acumulado (15%): <strong>{{ fondoIA.toFixed(4) }} PAXG</strong></p>
       </section>
 
       <section class="card tesla-card">
@@ -138,11 +155,9 @@ onMounted(actualizarDatos)
   color: #1e293b;
 }
 
-/* MODO TESLA - TRANSFORMACIÓN VISUAL */
 .tesla-active {
   background-color: #020617 !important;
   color: #f8f9fa !important;
-  background-image: radial-gradient(circle at top right, #1e293b, #020617);
 }
 
 .header {
@@ -154,15 +169,12 @@ onMounted(actualizarDatos)
   padding-bottom: 20px;
 }
 
-.tesla-active .header { border-color: #1e293b; }
-
 .core-tag {
   font-size: 0.8rem;
   background: #d97706;
   color: white;
   padding: 2px 8px;
   border-radius: 4px;
-  vertical-align: middle;
 }
 
 .node-status-box {
@@ -177,22 +189,12 @@ onMounted(actualizarDatos)
 
 .tesla-active .node-status-box { background: #1e293b; color: white; }
 
-.status-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #ef4444;
-}
+.status-dot { width: 10px; height: 10px; border-radius: 50%; background: #ef4444; }
+.status-dot.online { background: #10b981; box-shadow: 0 0 12px #10b981; }
 
-.status-dot.online {
-  background: #10b981;
-  box-shadow: 0 0 12px #10b981;
-}
-
-/* CARTAS */
 .content {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 25px;
   flex: 1;
 }
@@ -202,85 +204,29 @@ onMounted(actualizarDatos)
   padding: 25px;
   border-radius: 24px;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
 }
 
-.tesla-active .card {
-  background: #0f172a;
-  border: 1px solid #1e293b;
-  color: white;
-}
+.tesla-active .card { background: #0f172a; border: 1px solid #1e293b; color: white; }
 
-.card:hover { transform: translateY(-5px); }
+/* IMPACT CARD (AVELLANEDA) */
+.impact-card { border-top: 4px solid #10b981; }
+.ia-tag { font-size: 0.6rem; background: #10b981; color: white; padding: 2px 6px; border-radius: 4px; }
+.discount-rate { font-size: 2.5rem; font-weight: 800; color: #10b981; font-family: 'Space Mono', monospace; display: block; }
+.progress-bar-small { height: 8px; background: #e2e8f0; border-radius: 10px; margin: 15px 0; overflow: hidden; }
+.fill-green { height: 100%; background: #10b981; transition: width 1s ease; }
 
-/* ORO Y BÓVEDA */
-.gold-value {
-  margin: 20px 0;
-  font-family: 'Space Mono', monospace;
-}
-
-.amount {
-  font-size: 3rem;
-  font-weight: bold;
-  color: #d97706;
-}
-
-.vault-badge {
-  font-size: 0.7rem;
-  padding: 4px 10px;
-  border-radius: 6px;
-  background: #dcfce7;
-  color: #166534;
-}
-
+/* ORO Y BOTONES */
+.amount { font-size: 3rem; font-weight: bold; color: #d97706; }
+.vault-badge { font-size: 0.7rem; padding: 4px 10px; border-radius: 6px; background: #dcfce7; color: #166534; }
 .vault-badge.locked { background: #fee2e2; color: #991b1b; }
 
-/* BOTONES */
-button {
-  width: 100%;
-  padding: 18px;
-  border-radius: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  border: none;
-  transition: all 0.3s ease;
-  font-family: 'Space Mono', monospace;
-}
-
+button { width: 100%; padding: 18px; border-radius: 16px; font-weight: bold; cursor: pointer; border: none; font-family: 'Space Mono', monospace; }
 .btn-tesla-off { background: #1e293b; color: white; }
-.btn-tesla-on {
-  background: #10b981;
-  color: #020617;
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-  animation: pulse 2s infinite;
-}
+.btn-tesla-on { background: #10b981; color: #020617; animation: pulse 2s infinite; }
 
-/* LOGS */
-.log-container {
-  background: #f8f9fa;
-  padding: 15px;
-  border-radius: 12px;
-  height: 150px;
-  overflow-y: auto;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.8rem;
-}
-
+.log-container { background: #f8f9fa; padding: 15px; border-radius: 12px; height: 150px; overflow-y: auto; font-family: 'Space Mono', monospace; font-size: 0.8rem; }
 .tesla-active .log-container { background: #020617; color: #10b981; }
 
-.message-item { list-style: none; margin-bottom: 8px; border-bottom: 1px solid #eee; }
-.tesla-active .message-item { border-color: #1e293b; }
-
-.footer {
-  margin-top: 40px;
-  padding-top: 20px;
-  border-top: 1px solid #e2e8f0;
-  text-align: center;
-}
-
-@keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.7; }
-  100% { opacity: 1; }
-}
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 </style>

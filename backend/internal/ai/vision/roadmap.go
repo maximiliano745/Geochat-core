@@ -1,55 +1,27 @@
 package vision
 
+import "fmt"
 
+// NOTA: La interfaz MacroCapability YA NO ESTÁ AQUÍ. 
+// Go la toma automáticamente de vision.go porque están en el mismo paquete.
 
-// Interfaz para funcionalidades que la IA 5 desea implementar
-
-type MacroCapability interface {
-
-IsImplemented() bool
-
-ProposeImplementation() string // La IA charla contigo aquí
-
+// NewRoadmapModule es una función de ayuda para expandir el VisionMap desde aquí
+func NewRoadmapModule(id string, target string, missing string) *HardwareSalesModule {
+	return &HardwareSalesModule{
+		ID:          id,
+		Status:      "VISION",
+		Target:      target,
+		MissingCode: missing,
+	}
 }
 
-
-
-// Ejemplo: Módulo de Venta de Packs de Hardware
-
-type HardwareSalesModule struct {
-
-Status      string // "VISION" o "REAL"
-
-Target      string // "Motos", "Autos", "Hogares"
-
-MissingCode string // Descripción de lo que falta programar
-
+// Ejemplo de una capacidad futura que puedes inicializar desde el main
+func (m *HardwareSalesModule) GetRoadmapStatus() string {
+	if m.IsImplemented() {
+		return fmt.Sprintf("✅ Módulo %s está activo en el Core.", m.ID)
+	}
+	return fmt.Sprintf("🗓️ Módulo %s programado para desarrollo con el 15%% del fondo.", m.ID)
 }
 
-
-
-func (m *HardwareSalesModule) IsImplemented() bool {
-
-return m.Status == "REAL"
-
-}
-
-
-
-func (m *HardwareSalesModule) ProposeImplementation() string {
-
-return "IA 5: Jefe, el 15% del fondo ha crecido. Sugiero implementar el código de 'Venta de Packs para Motos' para expandir la red en 20%."
-
-}
-
-
-
-// La IA 5 monitorea estos 'huecos' en blanco
-
-var VisionMap = []MacroCapability{
-
-&HardwareSalesModule{Status: "VISION", Target: "Motos", MissingCode: "gateway_payment.go"},
-
-// Otros módulos...
-
-}
+// Aquí podrías agregar más tipos de módulos que cumplan con la interfaz
+// Por ejemplo: módulos de publicidad o de energía solar.

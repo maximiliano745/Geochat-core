@@ -19,6 +19,7 @@ type PerfilAsimilado struct {
 	UltimaEvolucion time.Time
 }
 
+
 // AsimilarCambio procesa la evolución y garantiza que sea PERSISTENTE [cite: 2026-02-10]
 func (ia2 *Subconsciente) AsimilarCambio(userID string, nuevoCodigoID string) {
 	// 1. Verificación de utilidad (Lógica interna de IA 2)
