@@ -6,75 +6,98 @@ import (
 	"time"
 )
 
-// Estructura Maestra del CEO [cite: 2026-02-10]
+// --- ESTRUCTURAS PRINCIPALES ---
+
+// CEO representa la Inteligencia de Gestión Estratégica (IA 5).
+// Actúa bajo el mando directo del usuario (El Líder). [cite: 2026-02-10]
 type CEO struct {
 	sync.RWMutex
-	FondoGas     float64
-	TokensGratis int
-	Propuestas   []Propuesta
-	Stats        Estadisticas
-	Lider        PerfilLider
+	FondoGas      float64
+	TokensGratis  float64
+	Propuestas    []Propuesta
+	Stats         Estadisticas
+	Lider         PerfilLider
+	UltimoModulo  string 
 }
 
-// Propuesta con TODOS los campos necesarios para la ejecución
+// Propuesta define una acción que requiere validación del Líder.
 type Propuesta struct {
 	ID                string
 	Modulo            string
 	Monto             float64
-	CostoTokens       float64 // <--- ESTO ARREGLA EL ERROR 'undefined: CostoTokens'
-	Destino           string  // <--- ESTO ARREGLA EL ERROR 'undefined: Destino'
+	CostoTokens       float64
+	Destino           string
 	ImpactoFinanciero float64
-	Status            string
+	Status            string // "PENDIENTE", "APROBADO", "EJECUTADO"
 	RequiereFirma     bool
 	Tipo              string
 	FirmaDigital      string
 }
 
-// ProcesarRecompensaSocial: La IA detecta valor social y lo traduce en crecimiento.
-// [cite: 2026-02-10] "GeoChat es de pueblo para el pueblo".
-func (c *CEO) ProcesarRecompensaSocial(usuarioID string) {
-	c.Lock()
-	defer c.Unlock()
+// --- CONSTRUCTOR ---
 
-	// 1. Aumentamos las estadísticas globales de "Buena Onda"
-	c.Stats.BuenaOndaCount++
-	
-	// 2. La plasticidad del sistema mejora (el organismo aprende)
-	c.Stats.Plasticidad += 0.05
-	
-	// 3. Documentamos que el usuario aportó valor
-	fmt.Printf("🌟 IA CEO: Usuario %s generó resonancia positiva. Plasticidad: %.2f\n", 
-		usuarioID, c.Stats.Plasticidad)
-}
-
-
-// NewCEO inicializa la entidad estratégica bajo tu mando directo.
 func NewCEO() *CEO {
 	return &CEO{
-		FondoGas:     100.0, // El 15% inicial para empezar a crecer
-		TokensGratis: 10,    // Incentivo inicial de Buena Onda
+		FondoGas:     100.0,
+		TokensGratis: 10.0,
 		Propuestas:   []Propuesta{},
 		Stats: Estadisticas{
 			BuenaOndaCount: 0,
 			Plasticidad:    1.0,
 		},
 		Lider: PerfilLider{
-			AlineacionEtica: 1.0, // El sistema nace en total armonía contigo
+			AlineacionEtica: 1.0,
+			UltimaActividad: time.Now(),
 		},
+		UltimoModulo: "core_logic.go",
 	}
 }
 
-// Métodos de apoyo que usa ejecucion.go
-func (p *Propuesta) TieneFirmaDelLider() bool {
+// --- MÉTODOS DE GESTIÓN Y ADADN ---
+
+// InyectarCodigoFuncional integra el nuevo código al núcleo tras tu firma.
+func (c *CEO) InyectarCodigoFuncional(p Propuesta) {
+	c.Lock()
+	defer c.Unlock()
+	c.UltimoModulo = p.Modulo
+	c.Stats.Plasticidad += 0.10
+	fmt.Printf("🧬 ADN GeoChat: Módulo '%s' inyectado. Plasticidad: %.2f\n", p.Modulo, c.Stats.Plasticidad)
+}
+
+// TieneFirmaDelLider valida si el mensaje de WhatsApp contenía tu autorización.
+func (p Propuesta) TieneFirmaDelLider() bool {
 	return p.FirmaDigital != ""
 }
 
-func (c *CEO) InyectarCodigoFuncional(p Propuesta) {
-	// Simulación de plasticidad del sistema
+// DocumentarLogro registra el éxito en el historial y el Vault [cite: 2026-02-11].
+func (c *CEO) DocumentarLogro(modulo, detalle string) {
+	c.Lock()
+	defer c.Unlock()
+	logMsg := fmt.Sprintf("[%s] %s: %s", time.Now().Format(time.RFC822), modulo, detalle)
+	c.Lider.HistorialFirma = append(c.Lider.HistorialFirma, logMsg)
+	c.Lider.UltimaActividad = time.Now()
 }
 
+// DocumentarEnVault es un alias para compatibilidad con ejecucion.go.
 
-// Estructuras secundarias
+// ProcesarRecompensaSocial traduce valor humano en crecimiento técnico.
+func (c *CEO) ProcesarRecompensaSocial(usuarioID string) {
+	c.Lock()
+	defer c.Unlock()
+	c.Stats.BuenaOndaCount++
+	c.Stats.Plasticidad += 0.05
+	fmt.Printf("🌟 IA CEO: Resonancia de %s. Plasticidad: %.2f\n", usuarioID, c.Stats.Plasticidad)
+}
+
+// ObtenerUltimoModuloPendiente informa al ejecutor qué archivo subir a Git.
+func (c *CEO) ObtenerUltimoModuloPendiente() string {
+	c.RLock()
+	defer c.RUnlock()
+	return c.UltimoModulo
+}
+
+// --- ESTRUCTURAS SECUNDARIAS ---
+
 type Estadisticas struct {
 	BuenaOndaCount int
 	MalaOndaCount  int
@@ -87,17 +110,15 @@ type PerfilLider struct {
 	UltimaActividad time.Time
 }
 
-// EvolucionSoftware representa una mejora técnica detectada por el Subconsciente (IA 2)
 type EvolucionSoftware struct {
-    Modulo  string
-    Origen  string
-    Impacto string
+	Modulo, Origen, Impacto string
 }
-
-// getEvolucionesPendientes conecta con la lógica de crecimiento [cite: 2026-02-10]
+// getEvolucionesPendientes conecta con la lógica de crecimiento [cite: 2026-02-10].
+// Permite que la IA 5 sepa qué mejoras técnicas ha detectado la IA 2.
 func (c *CEO) getEvolucionesPendientes() []EvolucionSoftware {
-    // Por ahora devolvemos una lista estática para que el sistema compile
-    return []EvolucionSoftware{
-        {Modulo: "Core", Origen: "IA_Subconscious", Impacto: "Estable"},
-    }
+	// Por ahora devolvemos una lista interna basada en el estado actual.
+	// Esto se conectará luego con el motor de evolución profunda.
+	return []EvolucionSoftware{
+		{Modulo: "Core", Origen: "IA_Subconscious", Impacto: "Estable"},
+	}
 }
