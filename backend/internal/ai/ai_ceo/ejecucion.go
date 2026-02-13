@@ -1,6 +1,7 @@
 package ai_ceo
 
 import (
+	"fmt"
 	"log"
 	// "geochat/internal/finance" // Descomenta cuando Capa 4 esté lista
 )
@@ -28,5 +29,5 @@ func (c *CEO) EjecutarMovimiento(p Propuesta) {
 	c.InyectarCodigoFuncional(p)
 
 	// 4. Documentar el éxito en el historial del Líder [cite: 2026-02-11]
-	c.DocumentarLogro(p.Modulo, "Ejecución técnica y financiera completada.")
+	c.DocumentarEnVault(fmt.Sprintf("%s: %s", p.Modulo, "Ejecución técnica y financiera completada"))	
 }

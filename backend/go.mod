@@ -2,7 +2,10 @@ module geochat
 
 go 1.25.4
 
-require github.com/gin-gonic/gin v1.11.0
+require (
+	github.com/gin-gonic/gin v1.11.0
+	github.com/lib/pq v1.11.2
+)
 
 require (
 	cloud.google.com/go v0.121.2 // indirect
@@ -42,6 +45,7 @@ require (
 	github.com/holiman/uint256 v1.3.2 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
+	github.com/klauspost/compress v1.16.7 // indirect
 	github.com/mmcloughlin/addchain v0.4.0 // indirect
 	github.com/pjbgf/sha1cd v0.3.2 // indirect
 	github.com/quic-go/qpack v0.5.1 // indirect

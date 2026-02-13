@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
-// Asegúrate de poner el .vue para que TypeScript no tire error
+// Importamos los componentes. 
+// Nota: Verifica que los nombres de los archivos en src/views sean EXACTAMENTE estos.
 import Dashboard from '../views/Dashboard.vue' 
 import AdminView from '../views/AdminView.vue'
 
@@ -10,14 +11,16 @@ const routes = [
     component: Dashboard
   },
   {
-    path: '/soberano',
+    // Cambiamos el path a /admin para que coincida con tus router-links
+    path: '/admin', 
     name: 'Admin',
     component: AdminView
   }
 ]
 
 const router = createRouter({
-  history: createWebHistory(), // Esto permite usar URLs limpias sin el #
+  // En Codespaces/Web, esto asegura que las rutas funcionen correctamente
+  history: createWebHistory(import.meta.env.BASE_URL), 
   routes
 })
 
