@@ -1,0 +1,28 @@
+# Seguridad Soberana: Nunca subir llaves privadas
+.env
+*.env
+*.key
+*.pem
+
+# Binarios y ejecutables de Go
+/bin/
+/dist/
+backend/main
+backend/api
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Dependencias (Go mod tidy se encarga de esto)
+vendor/
+
+# Archivos temporales y Logs
+*.log
+/tmp/
+.DS_Store
+
+# Codespaces y VS Code
+.vscode/
+.history/

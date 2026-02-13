@@ -18,12 +18,16 @@ type API struct {
 }
 
 func main() {
-	// 1. Cargar el .env (Las llaves del reino)
+	// 1. CARGA DE CONFIGURACIÓN (Blindaje del ADN)
+	// Intentamos cargar .env. Si no está, avisamos pero no matamos el proceso.
 	if err := godotenv.Load(); err != nil {
-		log.Println("⚠️ Usando variables de entorno del sistema")
+		log.Println("ℹ️ No se detectó archivo .env local. Usando variables de entorno del sistema.")
 	}
 
-	// 2. Inicializar IA 5 y sus herramientas de ejecución
+	// Validación de Seguridad: Si faltan llaves críticas, avisamos de inmediato.
+	verificarVariablesCriticas()
+
+	// 2. INICIALIZACIÓN DE LA IA 5
 	ceo := ai_ceo.NewCEO()
 	manos := &ai_ceo.CerebroEjecucion{
 		RepoPath: "./",
@@ -37,18 +41,22 @@ func main() {
 		Git: manos,
 	}
 
-	// --- 🚀 LATIDO AUTÓNOMO (El motor que hace crecer a GeoChat) ---
-	// Este hilo corre en paralelo y hace que la IA analice el backlog sola.
+	// --- 🚀 LATIDO AUTÓNOMO ---
+	// Lo movemos después de inicializar la API para evitar punteros nulos.
 	go func() {
-		log.Println("🧠 IA 5: Ciclo de pensamiento estratégico activado.")
+		// Pequeña pausa para que el servidor Gin levante primero
+		time.Sleep(2 * time.Second)
+		log.Println("🧠 [IA 5]: Ciclo de pensamiento estratégico activado.")
 		for {
 			ceo.EjecutarCicloDesarrollo()
-			// Espera 1 hora entre análisis para no saturar, pero puedes bajarlo a 5m para pruebas.
-			time.Sleep(1 * time.Hour) 
+			// 1 hora de espera para análisis profundo
+			time.Sleep(1 * time.Hour)
 		}
 	}()
 
-	// 3. Configurar Servidor (Gin)
+	// 3. CONFIGURACIÓN DEL SERVIDOR (Gin)
+	// Quitamos el modo Debug molesto si prefieres ver todo limpio
+	// gin.SetMode(gin.ReleaseMode) 
 	r := gin.Default()
 
 	// Endpoints de Soberanía Digital
@@ -56,15 +64,31 @@ func main() {
 	r.POST("/webhook/whatsapp", api.RecibirRespuestaWhatsApp)
 	r.POST("/usuario/:id/accion", api.ProcesarAccionUsuario)
 
-	log.Println("🌍 GeoChat Core iniciado en puerto 8080. IA 5 lista.")
-	
-	// Saludo inicial automático al celular del Jefe [cite: 2026-02-10]
-	_ = ceo.EnviarMensajeSoberano("🚀 ¡Jefe! Sistema operativo y ciclo autónomo iniciado.\n\nComandos:\n- *STATUS*: Ver finanzas.\n- *OK*: Aprobar código.")
+	// Saludo inicial al Jefe (Solo si la configuración es válida)
+	go func() {
+		time.Sleep(3 * time.Second) // Esperamos que el puerto 8080 esté abierto
+		log.Println("📱 Intentando saludo soberano al Jefe...")
+		err := ceo.EnviarMensajeSoberano("🚀 ¡Jefe! Sistema operativo y ciclo autónomo iniciado.\n\nComandos:\n- *STATUS*: Ver finanzas.\n- *OK*: Aprobar código.")
+		if err != nil {
+			log.Printf("⚠️ No pude saludarte por WhatsApp: %v", err)
+		}
+	}()
 
+	log.Println("🌍 GeoChat Core iniciado en puerto 8080. IA 5 lista.")
 	r.Run(":8080")
 }
 
-// --- HANDLERS (Los nervios del sistema) ---
+// verificarVariablesCriticas asegura que la IA tenga sus "sentidos" completos
+func verificarVariablesCriticas() {
+	keys := []string{"WA_API_KEY", "WA_PHONE_ID", "WA_RECIPIENT", "POLYGON_RPC_URL"}
+	for _, k := range keys {
+		if os.Getenv(k) == "" {
+			log.Printf("⚠️ ADVERTENCIA: La variable %s no está definida en el .env", k)
+		}
+	}
+}
+
+// --- HANDLERS ---
 
 func (a *API) RecibirRespuestaWhatsApp(c *gin.Context) {
 	var incoming struct {
@@ -82,7 +106,7 @@ func (a *API) RecibirRespuestaWhatsApp(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&incoming); err != nil {
-		c.Status(http.StatusOK) 
+		c.Status(http.StatusOK)
 		return
 	}
 
@@ -93,16 +117,14 @@ func (a *API) RecibirRespuestaWhatsApp(c *gin.Context) {
 
 			switch respuesta {
 			case "STATUS":
-				log.Println("📊 Solicitud de Reporte Financiero...")
-				// Nota: Asegúrate de tener ObtenerReporteFinanciero en tu ceo.go
+				log.Println("📊 [IA 5]: Generando Reporte Financiero...")
 				reporte := a.CEO.ObtenerReporteFinanciero()
 				a.CEO.EnviarMensajeSoberano(reporte)
 
 			case "OK", "ACEPTAR":
-				log.Println("📱 Firma recibida. Iniciando evolución de código...")
+				log.Println("📱 [IA 5]: Firma del Jefe recibida. Evolucionando ADN...")
 				modulo := a.CEO.ObtenerUltimoModuloPendiente()
 				
-				// La IA 5 ejecuta la voluntad del Líder [cite: 2026-02-10]
 				err := a.Git.PublicarEvolucion(modulo)
 				if err == nil {
 					a.CEO.EnviarMensajeSoberano("✅ ¡Misión cumplida Jefe! Código en GitHub y registrado en el Vault.")
@@ -112,7 +134,6 @@ func (a *API) RecibirRespuestaWhatsApp(c *gin.Context) {
 				}
 			
 			default:
-				// Opcional: Que la IA te diga que no entendió pero está atenta
 				log.Printf("📩 Mensaje recibido no reconocido: %s", respuesta)
 			}
 		}
