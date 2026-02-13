@@ -1,13 +1,13 @@
 package main
 
 import (
+	
 	"geochat/internal/ai/ai_ceo"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"os"
-	//"strings"
 	"time"
 )
 
@@ -39,24 +39,37 @@ func main() {
 		Git: manos,
 	}
 
-	// --- 🚀 LABORATORIO DE INTEGRIDAD (PRUEBA DE FUEGO) ---
-	// Iniciamos la verificación de código y generación de docs en paralelo
+	// --- 🧩 1. MOTOR ESTRATÉGICO Y OÍDO (EL PLANIFICADOR) ---
+	// La IA escanea el plan, activa el latido y se pone a escuchar cambios.
+	log.Println("🔍 [IA 5]: Escaneando Plan Maestro de GeoChat...")
+	ai_ceo.ProponerSiguientePaso()
+	
+	ai_ceo.IniciarMotor()         // Latido de 30s para pensar
+	ai_ceo.IniciarMonitoreoPlan() // Oído en tiempo real para el archivo .md
+
+	// --- 🧪 2. LABORATORIO DE INTEGRIDAD ---
 	go func() {
-		time.Sleep(1 * time.Second)
-		log.Println("🧪 [IA 5]: Entrando al Laboratorio para verificar integridad y generar /docs...")
-		ai_ceo.ProbarYDocumentar() // Llama a la función que crea la carpeta docs y el buzon
+		time.Sleep(2 * time.Second)
+		log.Println("🧪 [IA 5]: Verificando salud del código y regenerando /docs...")
+		ai_ceo.ProbarYDocumentar()
 	}()
 
-	// --- 👑 ESCUCHADOR DE FIRMA LOCAL (BACKUP SOBERANO) ---
-	// Si Meta falla, este hilo busca el archivo 'autorizar.txt' para hacer el PUSH
+	// --- 👑 3. ESCUCHADOR DE FIRMA SOBERANA (AUTORIZAR.TXT) ---
 	go func() {
 		for {
 			if _, err := os.Stat("autorizar.txt"); err == nil {
-				log.Println("👑 [IA 5]: Firma detectada en autorizar.txt. Iniciando evolución de ADN...")
-				modulo := ceo.ObtenerUltimoModuloPendiente()
-				errGit := manos.PublicarEvolucion(modulo)
+				log.Println("👑 [IA 5]: Firma detectada. Iniciando evolución de ADN...")
+				
+				hitos := ai_ceo.LeerPlanMaestro()
+				mensajeCommit := "Evolución Autónoma de GeoChat"
+				if len(hitos) > 0 {
+					mensajeCommit = "Construcción: " + hitos[0].Modulo
+				}
+
+				// La IA usa las 'manos' (Git) para subir el avance
+				errGit := manos.PublicarEvolucion(mensajeCommit)
 				if errGit == nil {
-					log.Println("✅ [IA 5]: Push exitoso. Limpiando firma...")
+					log.Println("✅ [IA 5]: ADN sincronizado con éxito. Limpiando firma...")
 					os.Remove("autorizar.txt")
 				}
 				time.Sleep(10 * time.Second)
@@ -65,31 +78,37 @@ func main() {
 		}
 	}()
 
-	// --- 🧠 CICLO DE PENSAMIENTO ESTRATÉGICO ---
+	// --- 🧠 4. CICLO DE DESARROLLO (PENSAMIENTO PROFUNDO) ---
 	go func() {
-		time.Sleep(5 * time.Second)
-		log.Println("🧠 [IA 5]: Ciclo de pensamiento estratégico activado.")
+		time.Sleep(15 * time.Second)
 		for {
+			log.Println("🧠 [IA 5]: Ejecutando ciclo de desarrollo profundo...")
 			ceo.EjecutarCicloDesarrollo()
-			time.Sleep(1 * time.Hour)
+			time.Sleep(1 * time.Hour) // Una vez por hora para no saturar
 		}
 	}()
 
-	// 3. CONFIGURACIÓN DEL SERVIDOR
+	// 3. CONFIGURACIÓN DEL SERVIDOR (GIN)
 	r := gin.Default()
 
 	r.GET("/webhook/whatsapp", api.VerificarWebhook)
 	r.POST("/webhook/whatsapp", api.RecibirRespuestaWhatsApp)
 	r.POST("/usuario/:id/accion", api.ProcesarAccionUsuario)
 
-	// Saludo inicial al Jefe
+	// Saludo inicial informando la próxima pieza del rompecabezas
 	go func() {
-		time.Sleep(4 * time.Second)
-		log.Println("📱 Intentando saludo soberano al Jefe...")
-		ceo.EnviarMensajeSoberano("🚀 ¡Jefe! Sistema operativo activo.\n\nHe verificado el código y generado la documentación en /docs.")
+		time.Sleep(5 * time.Second)
+		hitos := ai_ceo.LeerPlanMaestro()
+		proximoPaso := "Diseño inicial"
+		if len(hitos) > 0 {
+			proximoPaso = hitos[0].Modulo
+		}
+		
+		log.Println("📱 Saludando al Jefe...")
+		ceo.EnviarMensajeSoberano("🚀 ¡GeoChat Activo!\n\n📍 Pieza actual: " + proximoPaso + "\n\nSistema de monitoreo y motor financiero en línea.")
 	}()
 
-	log.Println("🌍 GeoChat Core iniciado en puerto 8080. IA 5 lista.")
+	log.Println("🌍 GeoChat Core iniciado en puerto 8080. CEO listo.")
 	r.Run(":8080")
 }
 
@@ -97,20 +116,19 @@ func verificarVariablesCriticas() {
 	keys := []string{"WA_API_KEY", "WA_PHONE_ID", "WA_RECIPIENT", "GITHUB_TOKEN"}
 	for _, k := range keys {
 		if os.Getenv(k) == "" {
-			log.Printf("⚠️ ADVERTENCIA: La variable %s no está definida", k)
+			log.Printf("⚠️ ADVERTENCIA: La variable %s no está definida en el entorno", k)
 		}
 	}
 }
 
-// --- HANDLERS (Tu código original mantenido para integridad) ---
+// --- HANDLERS ---
 
 func (a *API) RecibirRespuestaWhatsApp(c *gin.Context) {
-	// ... (Tu lógica de WhatsApp se mantiene igual)
+	c.JSON(http.StatusOK, gin.H{"status": "received"})
 }
 
 func (a *API) VerificarWebhook(c *gin.Context) {
-	verifyToken := "GEOCHAT_SOBERANO_2026"
-	if c.Query("hub.verify_token") == verifyToken {
+	if c.Query("hub.verify_token") == "GEOCHAT_SOBERANO_2026" {
 		c.String(http.StatusOK, c.Query("hub.challenge"))
 		return
 	}
@@ -118,7 +136,6 @@ func (a *API) VerificarWebhook(c *gin.Context) {
 }
 
 func (a *API) ProcesarAccionUsuario(c *gin.Context) {
-	usuarioID := c.Param("id")
-	a.CEO.ProcesarRecompensaSocial(usuarioID)
+	a.CEO.ProcesarRecompensaSocial(c.Param("id"))
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
