@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"geochat/internal/ai/ai_ceo" // Importa el corazón de la IA 5
+	"geochat/internal/ai/ai_ceo"
+	"geochat/internal/database" // Importamos tu paquete de Postgres
 	"log"
 	"net/http"
 	"os"
@@ -13,7 +14,6 @@ import (
 
 // 1. ESTRUCTURA DE LA API
 type API struct {
-	// Sincronizado: Usamos ai_ceo.CEO en lugar de IA5
 	CEO *ai_ceo.CEO
 	Git *ai_ceo.CerebroEjecucion
 }
@@ -25,12 +25,41 @@ func main() {
 
 	verificarVariablesCriticas()
 
-	// 2. INICIALIZACIÓN SOBERANA
-	// Usamos NewCEO() que ya limpia y prepara la Conciencia y los Stats
+	// --- 🟢 CAPA 4: CONEXIÓN A LA MEMORIA RELACIONAL ---
+	database.ConectarDB()
+
+	// 2. INICIALIZACIÓN SOBERANA DEL CEO
 	ceoInstancia := ai_ceo.NewCEO()
-	
-	// Ajustamos campos específicos si es necesario
 	ceoInstancia.ID = "GeoChat-CEO-Soberano"
+
+	// --- 💎 TEST DE MEMORIA ETERNA (Grabación de Prueba) ---
+	testPropuesta := ai_ceo.Propuesta{
+		ID:            "TEST-001",
+		Modulo:        "INFRAESTRUCTURA",
+		Descripcion:   "Prueba de persistencia soberana",
+		Monto:         100.50,
+		Impacto:       "Verificar conexión Capa 4",
+		Estado:        "ESPERANDO_FIRMA",
+		RequiereFirma: true,
+	}
+
+	// El CEO usa el método desglosado para evitar ciclos de importación
+	err := database.GuardarPropuesta(
+		testPropuesta.ID,
+		testPropuesta.Modulo,
+		testPropuesta.Descripcion,
+		testPropuesta.Monto,
+		testPropuesta.Impacto,
+		testPropuesta.Estado,
+		testPropuesta.RequiereFirma,
+	)
+
+	if err != nil {
+		log.Printf("❌ Fallo en la memoria: %v", err)
+	} else {
+		log.Println("💎 ÉXITO: Registro grabado en la Memoria Eterna.")
+	}
+	// -------------------------------------------------------
 
 	manos := &ai_ceo.CerebroEjecucion{
 		RepoPath: "./",
@@ -44,12 +73,12 @@ func main() {
 		Git: manos,
 	}
 
-	// 3. ENCENDIDO: El CEO empieza a escanear oportunidades para el pueblo
+	// 3. ENCENDIDO: El CEO empieza a escanear oportunidades
 	go ceoInstancia.EscanearOportunidades()
 
 	r := gin.Default()
 
-	// Middleware CORS (Esencial para conectar con tu Vue.ts)
+	// Middleware CORS
 	r.Use(func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
@@ -66,8 +95,8 @@ func main() {
 	r.POST("/webhook/whatsapp", apiInstancia.RecibirRespuestaWhatsApp)
 	r.POST("/usuario/:id/accion", apiInstancia.ProcesarAccionUsuario)
 	r.POST("/api/admin/authorize", apiInstancia.AutorizarEvolucion)
-	
-	log.Println("🌍 GeoChat Core iniciado. CEO (IA 5) en línea bajo mando Soberano.")
+
+	log.Println("🌍 GeoChat Core iniciado en puerto 8080. CEO en línea bajo mando Soberano.")
 	r.Run(":8080")
 }
 
@@ -83,31 +112,24 @@ func (api *API) AutorizarEvolucion(c *gin.Context) {
 		return
 	}
 
-	// Tu Firma es la Ley: Validación contra el .env
 	if input.Passphrase != os.Getenv("ADMIN_PASSPHRASE") {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Firma no válida. El 15% permanece bloqueado."})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Firma no válida."})
 		return
 	}
 
-	fmt.Println("👑 [Soberano]: Firma validada. Ejecutando evolución del ADN...")
-	
-	// La IA vuelve a escanear tras tu autorización
-	go api.CEO.EscanearOportunidades() 
-
-	c.JSON(http.StatusOK, gin.H{"mensaje": "Evolución iniciada, Jefe. El CEO está trabajando."})
+	fmt.Println("👑 [Soberano]: Firma validada. Ejecutando evolución...")
+	go api.CEO.EscanearOportunidades()
+	c.JSON(http.StatusOK, gin.H{"mensaje": "Evolución iniciada."})
 }
 
-// Handler para procesar recompensas sociales desde la API
 func (api *API) ProcesarAccionUsuario(c *gin.Context) {
 	usuarioID := c.Param("id")
-	// Le damos 1.0 punto de impacto por defecto en cada acción detectada
 	api.CEO.ProcesarRecompensaSocial(usuarioID, 1.0)
-	
 	c.JSON(200, gin.H{"status": "Acción procesada", "usuario": usuarioID})
 }
 
 func verificarVariablesCriticas() {
-	keys := []string{"GITHUB_TOKEN", "ADMIN_PASSPHRASE"}
+	keys := []string{"GITHUB_TOKEN", "ADMIN_PASSPHRASE", "DATABASE_URL"}
 	for _, k := range keys {
 		if os.Getenv(k) == "" {
 			log.Printf("⚠️ ADVERTENCIA CRÍTICA: %s no definida", k)

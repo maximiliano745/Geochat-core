@@ -1,8 +1,9 @@
 package ai_ceo
 
 import (
-    "fmt"
-    "log"
+	"fmt"
+	"geochat/internal/database"
+	"log"
 )
 
 // NewCEO inicializa la entidad. Es público (Mayúscula) para el main.go
@@ -63,4 +64,11 @@ func (c *CEO) GetEvolucionesPendientes() []Propuesta {
         }
     }
     return pendientes
+}
+func (c *CEO) RegistrarEnMemoria(p Propuesta) {
+    // El CEO desglosa su estructura para la DB
+    err := database.GuardarPropuesta(p.ID, p.Modulo, p.Descripcion, p.Monto, p.Impacto, p.Estado, p.RequiereFirma)
+    if err != nil {
+        log.Printf("❌ Error al guardar en memoria: %v", err)
+    }
 }

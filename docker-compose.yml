@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # Servicio de Base de Datos PostgreSQL
+  db:
+    image: postgres:16-alpine
+    container_name: geochat-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: geochat
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+  # Servicio de Backend Go
+  backend:
+    build:
+      context: .             # <--- IMPORTANTE: Ahora mira la raíz del proyecto
+      dockerfile: backend/Dockerfile
+    container_name: geochat-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/geochat?sslmode=disable
+    depends_on:
+      - db
+    restart: on-failure
+
+  # Servicio de Frontend Vue
+  frontend:
+    build:
+      context: .             # <--- También mira la raíz para evitar errores de ruta
+      dockerfile: frontend/Dockerfile
+    container_name: geochat-frontend
+    ports:
+      - "5174:80"
+    depends_on:
+      - backend
+    restart: on-failure
+
+volumes:
+  postgres_data:
+    driver: local
