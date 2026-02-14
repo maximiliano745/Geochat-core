@@ -1,25 +1,27 @@
 package main
 
 import (
-    "geochat/internal/ai/ai_ceo" // Importa el paquete del CEO
-    "github.com/gin-gonic/gin"    // Si usas Gin para la API
+    "geochat/internal/ai/ai_ceo" 
+    "github.com/gin-gonic/gin"
 )
 
 func ProcesarAccionUsuario(c *gin.Context) {
-    // 1. DEFINIR EL OBJETO CEO (Si no viene de otro lado)
-    // Normalmente el CEO se inicializa en el main y se pasa aquí
+    // 1. OBTENER EL CEO 
+    // Nota: En producción, el CEO debería venir de un Singleton o Inyectado
     ceo := ai_ceo.NewCEO() 
 
-    // 2. OBTENER EL USUARIO (Aquí defines usuarioID)
-    usuarioID := c.Param("id") // O lo sacas del body/token
-    
+    // 2. OBTENER EL USUARIO
+    usuarioID := c.Param("id") 
     if usuarioID == "" {
         usuarioID = "Anonimo_Soberano"
     }
 
-    // 3. AHORA SÍ: La IA procesa la recompensa
-    // Esto conectará con tu lógica de IA 1 (Resonancia)
-    ceo.ProcesarRecompensaSocial(usuarioID) 
+    // 3. EJECUTAR: Pasamos el ID (string) y los Puntos (float64)
+    // El CEO se encarga de la lógica interna
+    ceo.ProcesarRecompensaSocial(usuarioID, 1.0) 
     
-    c.JSON(200, gin.H{"status": "Recompensa procesada por la IA"})
+    c.JSON(200, gin.H{
+        "status": "Soberanía Social procesada",
+        "usuario": usuarioID,
+    })
 }

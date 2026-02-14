@@ -14,7 +14,7 @@ type Funcionalidad struct {
 	Costo       float64
 }
 
-// BacklogPrioritario es el plan de crecimiento de GeoChat [cite: 2026-02-09]
+// BacklogPrioritario es el plan de crecimiento de GeoChat
 var BacklogPrioritario = []Funcionalidad{
 	{
 		Nombre:      "Native Red & Mapa",
@@ -37,47 +37,46 @@ var BacklogPrioritario = []Funcionalidad{
 }
 
 // EjecutarCicloDesarrollo es el motor autónomo de la IA 5.
-// Transforma items del backlog en propuestas reales para el Líder.
 func (c *CEO) EjecutarCicloDesarrollo() {
 	c.Lock()
 	defer c.Unlock()
 
 	for i, f := range BacklogPrioritario {
-		// La IA solo propone si el 15% tiene fondos (TokensGratis) [cite: 2026-02-10]
+		// La IA solo propone si el fondo del 15% (TokensGratis) tiene resto
 		if f.Estado == "Pendiente" && c.TokensGratis >= f.Costo {
-			
-			// Restamos del presupuesto de crecimiento de la IA
+
+			// Restamos del presupuesto de crecimiento (Capa 4 Simulación)
 			c.TokensGratis -= f.Costo
 
-			// Generamos la propuesta técnica soberana
+			// Generamos la propuesta usando los nombres exactos de types.go
 			nueva := Propuesta{
-				ID:                fmt.Sprintf("DEV-%d-%d", i, time.Now().Unix()),
-				Modulo:            f.Nombre,
-				Tipo:              "DESARROLLO",
-				CostoTokens:       f.Costo,
-				Status:            "ESPERANDO_FIRMA",
-				RequiereFirma:     true,
-				ImpactoFinanciero: 0.15,
+				ID:            fmt.Sprintf("DEV-%d-%d", i, time.Now().Unix()),
+				Modulo:        f.Nombre,
+				Descripcion:   f.Descripcion,
+				Monto:         f.Costo, // Antes era CostoTokens
+				Impacto:       "Desarrollo de funcionalidad core",
+				Estado:        "ESPERANDO_FIRMA", // Antes era Status
+				Fecha:         time.Now(),
+				RequiereFirma: true,
 			}
 
 			// Registramos la propuesta en el cerebro del CEO
 			c.Propuestas = append(c.Propuestas, nueva)
-			
-			// Marcamos como 'En_Sandbox' para que no se repita en el próximo tick
+
+			// Marcamos como 'En_Sandbox' para evitar duplicados
 			BacklogPrioritario[i].Estado = "En_Sandbox"
 
 			log.Printf("🤖 IA CEO: Propuesta generada para '%s'.", f.Nombre)
 
-			// Notificación inmediata al Jefe
+			// Notificación al Jefe (Usamos EnviarMensajeSoberano que definimos antes)
 			texto := fmt.Sprintf("💡 *NUEVA PROPUESTA DE DESARROLLO*\n\n"+
 				"Módulo: *%s*\n"+
 				"Descripción: %s\n"+
-				"Inversión: *%.1f tokens*\n\n"+
-				"Responda 'OK' para iniciar la inyección de código.",
+				"Inversión: *%.1f PAXG*\n\n"+
+				"Esperando su firma en el Panel de Control.",
 				f.Nombre, f.Descripcion, f.Costo)
 
-			// Usamos el método oficial EnviarInforme
-			err := c.EnviarInforme(texto)
+			err := c.EnviarMensajeSoberano(texto)
 			if err != nil {
 				log.Printf("⚠️ Error al notificar al Jefe: %v", err)
 			}

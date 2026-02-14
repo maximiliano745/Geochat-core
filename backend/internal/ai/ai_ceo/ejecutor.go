@@ -23,18 +23,15 @@ func (c *CerebroEjecucion) PublicarEvolucion(nombreModulo string) error {
 	_, err = w.Add(nombreModulo)
 	if err != nil { return err }
 
-	// CORRECCIÓN AQUÍ:
-	// Como 'err' ya existe, usamos '=' para el Commit. 
-	// Quitamos el Status innecesario que causaba el conflicto de variables.
+	// El mensaje de commit refleja tu autorización soberana
+	msg := fmt.Sprintf("🧬 IA 5 Evolución: %s\n\nAutorizado por Jefe", nombreModulo)
 	
-	msg := fmt.Sprintf("🧬 IA 5 Evolución: %s\n\nAutorizado por Jefe vía WhatsApp", nombreModulo)
-	
-	commit, err := w.Commit(msg, &git.CommitOptions{}) // 'commit' es nueva, así que := funciona
+	hash, err := w.Commit(msg, &git.CommitOptions{}) 
 	if err != nil { return err }
 	
-	fmt.Printf("Commit creado: %s\n", commit)
+	fmt.Printf("✅ Commit creado exitosamente: %s\n", hash)
 
-	// Aquí 'err' ya existe, así que usamos '='
+	// Push al repositorio remoto (GitHub)
 	err = r.Push(&git.PushOptions{
 		Auth: &http.BasicAuth{
 			Username: c.Username,

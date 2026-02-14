@@ -49,11 +49,11 @@ func (c *CEO) ProponerReinversion(ro *RevenueOrchestrator) {
 
     propuesta := Propuesta{
         ID:                fmt.Sprintf("REINV-%d", len(c.Propuestas)+1),
-        Modulo:            "Reinversión Infraestructura Avellaneda",
+        //Modulo:            "Reinversión Infraestructura Avellaneda",
         // CAMBIO: Usamos 'Tipo' en lugar de 'Arquitectura' para coincidir con ceo.go
-        Tipo:              fmt.Sprintf("ACCIÓN: Usar %.4f PAXG para mejorar nodos locales", ro.FondoPueblo15),
-        CostoTokens:       0,
-        Status:            "WAITING_OWNER_SIGNATURE",
+        Modulo:              fmt.Sprintf("ACCIÓN: Usar %.4f PAXG para mejorar nodos locales", ro.FondoPueblo15),
+        Monto:       0,
+        Estado:            "WAITING_OWNER_SIGNATURE",
         RequiereFirma:     true,
     }
 

@@ -27,7 +27,7 @@ func (c *CEO) NotificarFirmaRequerida(propuesta Propuesta) {
 		"Módulo: *%s*\n"+
 		"Costo: *%.2f tokens*\n\n"+
 		"Responda 'OK' para integrar al ADN.", 
-		propuesta.Modulo, propuesta.CostoTokens)
+		propuesta.Modulo, propuesta.Monto)
 	
 	_ = c.EnviarInforme(msg)
 }

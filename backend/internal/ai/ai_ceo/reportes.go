@@ -33,7 +33,6 @@ func (c *CEO) GenerarPropuestaDiaria() Propuesta {
 		ImpactoFinanciero: 5.0,
 		Status:            "PENDIENTE_FIRMA",
 		RequiereFirma:     true,
-		Tipo:              "Social/Técnico",
 	}
 
 	// 4. PERSISTENCIA EN POSTGRES: Para que aparezca en el AdminView automáticamente

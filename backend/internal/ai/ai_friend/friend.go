@@ -31,15 +31,15 @@ func (f *FriendIA) EvaluarInteraccion(usuarioID string, input string) int {
 	puntuacion := AnalizarEnergia(input)
 	
 	// Registro para auditoría del Dueño [cite: 2026-02-10]
-	if puntuacion == 3 {
+	switch puntuacion {
+case 3:
 		log.Printf("💎 Energía Nivel 3: Usuario %s aportando valor.", usuarioID)
 		
 		// 3. RECOMPENSA SOCIAL: Usamos la conexión al CEO
 		if f.CEO != nil {
-			f.CEO.ProcesarRecompensaSocial(usuarioID)
-			log.Println("📢 AI Friend: Notificando a CEO para bono de equidad del 15%.")
+			f.CEO.ProcesarRecompensaSocial(usuarioID, 1.0) // ✅ Correcto			log.Println("📢 AI Friend: Notificando a CEO para bono de equidad del 15%.")
 		}
-	} else if puntuacion == 1 {
+	case 1:
 		log.Printf("🛡️ AI Friend: Energía baja detectada de %s. Bloqueando evolución.", usuarioID)
 	}
     

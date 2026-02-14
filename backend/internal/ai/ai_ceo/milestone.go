@@ -10,11 +10,10 @@ import (
 func InyectarHitoCero() Propuesta { // <-- Cambiado Proposal por Propuesta
 	// 1. Definimos la propuesta estratégica alineada con el ADN
 	p := Propuesta{
-		ID:                "HITO-000-START",
-		Modulo:            "Gateway PAXG v1", // Usamos Modulo en lugar de Description
+		ID:     "123",
+    	Modulo: "LOGIC", // ✅ Correcto: coincide con types.go
 		Monto:             0.0,
-		Tipo:              "LOGIC",
-		Status:            "PENDIENTE_FIRMA", // Estado consistente
+		Estado:            "PENDIENTE_FIRMA", // Estado consistente
 		RequiereFirma:     true,
 	}
 

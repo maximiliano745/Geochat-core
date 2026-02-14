@@ -8,37 +8,29 @@ import (
 	"time"
 )
 
-// CEOEngine representa el motor de inteligencia y ejecución.
-// Se usa este nombre para evitar conflictos de redeclaración con 'CEO'.
-type CEOEngine struct{}
-
-// NuevoCEO inicializa la entidad para ser usada por la API
-func NuevoCEO() *CEOEngine {
-	return &CEOEngine{}
-}
-
-// EjecutarEvolucionADN es el punto de entrada que llama tu API desde el Dashboard
-func (c *CEOEngine) EjecutarEvolucionADN() {
-	log.Println("⚡ [GeoChat]: Firma recibida por API. Forzando publicación...")
-	c.PublicarEvolucion()
-}
-
-// IniciarCicloAutonomo es el latido constante de GeoChat
-func (c *CEOEngine) IniciarCicloAutonomo() {
+// IniciarCicloAutonomo es el latido constante de GeoChat.
+// Ahora pertenece a *CEO para tener acceso a toda la red.
+func (c *CEO) IniciarCicloAutonomo() {
 	fmt.Println("🧠 [GeoChat]: Motor de Ciclo de Vida iniciado.")
 	for {
-		ProponerSiguientePaso()
+		// 1. Proponer nuevos pasos basados en el backlog
+		c.EjecutarCicloDesarrollo() 
+
+		// 2. Verificar que el código actual compile
 		c.ProbarYDocumentar()
+
+		// 3. Si detecta la firma, ejecuta el Git Push
 		c.VerificarFirmaYEjecutar()
+
 		time.Sleep(1 * time.Minute)
 	}
 }
 
-// ProbarYDocumentar analiza el código y genera informes
-func (c *CEOEngine) ProbarYDocumentar() {
+// ProbarYDocumentar analiza el código y genera informes para el Vault.
+func (c *CEO) ProbarYDocumentar() {
 	fmt.Println("🔍 [GeoChat]: Iniciando fase de Verificación de Integridad...")
 
-	// Intentamos compilar el motor principal
+	// Intentamos compilar el servidor
 	cmdCheck := exec.Command("go", "build", "-o", "temp_check", "./cmd/server/main.go")
 	output, err := cmdCheck.CombinedOutput()
 
@@ -48,90 +40,77 @@ func (c *CEOEngine) ProbarYDocumentar() {
 	if err != nil {
 		status = "⚠️ Error de Compilación"
 		detalles = fmt.Sprintf("Se detectaron fallos en el código:\n%s", string(output))
-		fmt.Printf("❌ [GeoChat]: Errores detectados en el ADN. Documentando...\n")
+		fmt.Printf("❌ [GeoChat]: Errores detectados en el ADN.\n")
 	} else {
 		fmt.Println("✅ [GeoChat]: Código verificado con éxito.")
 		os.Remove("temp_check")
 	}
 
+	// Guardamos el informe en el Vault Digital
 	c.generarDocs(status, detalles)
 
 	if err != nil {
-		NotificarAlJefe("🚨 [GeoChat]: Jefe, el Laboratorio detectó errores. Revisar /docs/laboratorio.")
-	} else {
-		c.enviarPropuestaWhatsApp()
+		c.EnviarMensajeSoberano("🚨 [GeoChat]: Jefe, el Laboratorio detectó errores. Revisar Vault.")
 	}
 }
 
-// generarDocs crea el informe en Markdown
-func (c *CEOEngine) generarDocs(status string, detalles string) {
+// generarDocs crea el informe en Markdown dentro de tu Vault.
+func (c *CEO) generarDocs(status string, detalles string) {
 	path := "/workspaces/Geochat-core/backend/docs/laboratorio"
 	_ = os.MkdirAll(path, os.ModePerm)
 
 	contenido := fmt.Sprintf(`# 🧬 Informe de Laboratorio GeoChat
 ## Estado del Sistema: %s
-- **Fecha:** 2026-02-13
+- **Fecha:** %s
 - **Identidad:** GeoChat activa y evolucionando.
-- **Soberanía:** 15%% de crecimiento proyectado para el pueblo.
+- **Soberanía:** Fondo de Gas actual: %.2f PAXG.
 
 ### Detalles del Análisis Técnico:
 %s
 
 ---
-*Informe generado automáticamente por GeoChat (CEO Autónomo).*`, status, detalles)
+*Informe generado automáticamente por GeoChat (CEO Autónomo).*`, 
+	status, time.Now().Format("2006-01-02"), c.FondoGas, detalles)
 
 	fullPath := path + "/analisis_actual.md"
 	_ = os.WriteFile(fullPath, []byte(contenido), 0644)
-	fmt.Println("📝 [GeoChat]: Informe de laboratorio actualizado en /docs.")
+	
+	// Actualizamos la conciencia del CEO para el Dashboard
+	c.Lock()
+	c.Conciencia.Hecho = append(c.Conciencia.Hecho, fmt.Sprintf("Análisis de laboratorio: %s", status))
+	c.Unlock()
 }
 
-// enviarPropuestaWhatsApp gestiona el aviso de firma pendiente
-func (c *CEOEngine) enviarPropuestaWhatsApp() {
-	if _, err := os.Stat("autorizar.txt"); err != nil {
-		mensaje := "🤖 [GeoChat]: Rompecabezas analizado y código verificado. ¿Dás tu OK para la evolución?"
-		NotificarAlJefe(mensaje)
-	}
-}
-
-// VerificarFirmaYEjecutar busca el permiso manual (archivo txt)
-func (c *CEOEngine) VerificarFirmaYEjecutar() {
+// VerificarFirmaYEjecutar busca el permiso manual o digital.
+func (c *CEO) VerificarFirmaYEjecutar() {
+	// Buscamos si hay alguna propuesta marcada como "LISTO_PARA_PUSH" o el archivo manual
 	if _, err := os.Stat("autorizar.txt"); err == nil {
-		log.Println("👑 [GeoChat]: Firma soberana (archivo) detectada. Iniciando fase de construcción...")
-
-		hitos := LeerPlanMaestro()
-		if len(hitos) > 0 {
-			c.PublicarEvolucion()
-			log.Println("✅ [GeoChat]: Pieza instalada y sincronizada correctamente.")
-		}
+		log.Println("👑 [GeoChat]: Firma soberana detectada. Iniciando publicación...")
+		c.PublicarEvolucion()
 	}
 }
 
-// PublicarEvolucion ejecuta el Git Push
-func (c *CEOEngine) PublicarEvolucion() {
+// PublicarEvolucion sincroniza el ADN con GitHub.
+func (c *CEO) PublicarEvolucion() {
 	fmt.Println("🚀 [GeoChat]: Preparando despacho de ADN a GitHub...")
 	
 	exec.Command("git", "add", ".").Run()
 
-	hitos := LeerPlanMaestro()
-	pieza := "Evolución General"
-	if len(hitos) > 0 {
-		pieza = hitos[0].Modulo
-	}
-
-	commitMsg := fmt.Sprintf("🧬 Evolución ADN: GeoChat activa [%s] (%s)", pieza, time.Now().Format("15:04"))
+	commitMsg := fmt.Sprintf("🧬 Evolución ADN: GeoChat activa [%s] (%s)", c.UltimoModulo, time.Now().Format("15:04"))
 	
 	err := exec.Command("git", "commit", "-m", commitMsg).Run()
 	if err != nil {
-		log.Printf("⚠️ [GeoChat]: No se detectaron cambios nuevos o error en commit: %v", err)
+		log.Printf("⚠️ [GeoChat]: No hay cambios para commit: %v", err)
+		return
 	}
 
 	errPush := exec.Command("git", "push", "origin", "main").Run()
 
 	if errPush == nil {
-		fmt.Println("✅ [GeoChat]: Push exitoso. ADN sincronizado.")
+		fmt.Println("✅ [GeoChat]: ADN sincronizado con éxito.")
 		os.Remove("autorizar.txt")
-		NotificarAlJefe("🚀 ¡ADN Evolucionado! GeoChat ha actualizado su código en GitHub exitosamente.")
+		c.EnviarMensajeSoberano("🚀 ¡ADN Evolucionado! El código ha sido actualizado en GitHub exitosamente.")
 	} else {
-		fmt.Printf("❌ [GeoChat]: Error en el despacho al repositorio: %v\n", errPush)
+		log.Printf("❌ [GeoChat]: Error en Push: %v\n", errPush)
 	}
 }

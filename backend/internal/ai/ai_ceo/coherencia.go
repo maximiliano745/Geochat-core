@@ -19,7 +19,7 @@ func (c *CEO) AnalizarCoherencia(p Propuesta) (bool, string) {
 
 	// 2. Análisis de "Modo Tesla" vs "Concentración de Riesgo"
 	// GeoChat distribuye riesgo [cite: 2026-01-12]
-	if p.Tipo == "Privatización" {
+	if p.Modulo == "Privatización" {
 		return false, "⚠️ Jefe, esto concentra el riesgo. GeoChat nació para distribuirlo. ¿Deseas proceder?"
 	}
 
