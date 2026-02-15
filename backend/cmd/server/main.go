@@ -1,12 +1,14 @@
 package main
 
 import (
-	"geochat/internal/ai/ai_ceo"
-	"geochat/internal/ai/ai_friend"
-	"geochat/internal/api"
-	"geochat/internal/database"
 	"log"
 	"os"
+
+	"geochat/internal/ai/ai_ceo"
+	"geochat/internal/ai/ai_friend" // <--- IMPORT DESCOMENTADO Y LISTO
+	"geochat/internal/api"
+	"geochat/internal/database"
+	"geochat/internal/vault"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -14,22 +16,28 @@ import (
 
 func main() {
 	// 1. CARGA DE ENTORNO SOBERANO
+	// Cargamos el .env para que MASTER_KEY y DATABASE_URL estén disponibles
 	if err := godotenv.Load(); err != nil {
-		log.Println("ℹ️ Usando variables de entorno del sistema.")
+		log.Println("ℹ️ Usando variables de entorno del sistema (no se encontró .env).")
 	}
 
 	verificarVariablesCriticas()
-	database.ConectarDB()
+	
+	// 2. INFRAESTRUCTURA DE DATOS Y ADN
+	database.ConectarDB() // Conexión a Postgres
+	vault.InitEsquemas()  // Inicializa moldes de ADN en el Vault
 
-	// 2. DESPERTAR ENTIDADES (CEO con 15% y Friend IA)
+	// 3. DESPERTAR ENTIDADES (Instancias Reales)
+	// Creamos al CEO y a la Friend IA para pasarlas al puente de la API
 	ceoInstancia := ai_ceo.NewCEO()
 	ceoInstancia.ID = "GeoChat-CEO-Soberano"
-	friendIA := &ai_friend.FriendIA{}
+	
+	friendInstancia := &ai_friend.FriendIA{ID: "Friend-Soberano"}
 
-	// 3. CONFIGURACIÓN DEL MOTOR DE RUTAS
+	// 4. CONFIGURACIÓN DEL MOTOR DE RUTAS (GIN)
 	r := gin.Default()
 
-	// --- 🛡️ MIDDLEWARE CORS TOTAL (Túnel libre para Codespaces) ---
+	// --- 🛡️ MIDDLEWARE CORS TOTAL (Esencial para Codespaces y Frontend Vue.ts) ---
 	r.Use(func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
@@ -43,27 +51,30 @@ func main() {
 		c.Next()
 	})
 
-	// --- 🔗 VÍNCULO DE CAPAS (Sin duplicados, sin conflictos) ---
-	// api.GetDashboardData registra: GET /api/dashboard/stats
-	// api.SetupCEOEndpoints registra: POST /api/ceo/autorizar, /api/chat, etc.
+	// --- 🔗 VÍNCULO DE CAPAS (Puente API) ---
+	// Cargamos las rutas del Dashboard y los endpoints del CEO/Friend
 	api.GetDashboardData(r) 
-	api.SetupCEOEndpoints(r, ceoInstancia, friendIA)
+	api.SetupCEOEndpoints(r, ceoInstancia, friendInstancia)
 
-	// 4. INICIO DE OPERACIONES AUTÓNOMAS
-	// El CEO escanea, pero tu firma en la Interfaz de Autorización es la Ley.
+	// 5. INICIO DE OPERACIONES AUTÓNOMAS
+	// El CEO empieza a escanear oportunidades en segundo plano
 	go ceoInstancia.EscanearOportunidades()
 	
 	log.Println("🌍 GeoChat Core iniciado en 0.0.0.0:8080. El Pueblo es el dueño.")
 	
-	// Bind total para Codespaces
-	r.Run("0.0.0.0:8080")
+	// 6. LANZAMIENTO
+	// Usamos 0.0.0.0 para asegurar visibilidad en entornos cloud/Codespaces
+	if err := r.Run("0.0.0.0:8080"); err != nil {
+		log.Fatalf("❌ Error al iniciar el servidor: %v", err)
+	}
 }
 
+// verificarVariablesCriticas asegura que el sistema no arranque "ciego"
 func verificarVariablesCriticas() {
 	keys := []string{"MASTER_KEY", "DATABASE_URL"}
 	for _, k := range keys {
 		if os.Getenv(k) == "" {
-			log.Printf("⚠️ ADVERTENCIA: Variable %s no detectada.", k)
+			log.Printf("⚠️ ADVERTENCIA: Variable %s no detectada en el entorno.", k)
 		}
 	}
 }

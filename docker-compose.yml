@@ -13,6 +13,12 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     networks:
       - geochat-network
+    # --- 🔍 MÉDICO DE GUARDIA ---
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d geochat"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   backend:
     build:
@@ -24,7 +30,8 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy # --- 🚀 ESPERA AL MÉDICO ---
     restart: on-failure
     networks:
       - geochat-network

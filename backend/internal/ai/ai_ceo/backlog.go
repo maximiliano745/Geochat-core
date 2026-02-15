@@ -42,22 +42,21 @@ func (c *CEO) EjecutarCicloDesarrollo() {
 	defer c.Unlock()
 
 	for i, f := range BacklogPrioritario {
-		// La IA solo propone si el fondo del 15% (TokensGratis) tiene resto
+		// La IA solo propone si el fondo del 15% tiene resto
+		// Nota: Usamos FondoGas o TokensGratis según lo que definas en types.go
 		if f.Estado == "Pendiente" && c.TokensGratis >= f.Costo {
 
-			// Restamos del presupuesto de crecimiento (Capa 4 Simulación)
 			c.TokensGratis -= f.Costo
 
-			// Generamos la propuesta usando los nombres exactos de types.go
+			// ELIMINAMOS EL CAMPO 'FECHA' porque no existe en la struct Propuesta
 			nueva := Propuesta{
 				ID:            fmt.Sprintf("DEV-%d-%d", i, time.Now().Unix()),
 				Modulo:        f.Nombre,
 				Descripcion:   f.Descripcion,
-				Monto:         f.Costo, // Antes era CostoTokens
+				Monto:         f.Costo,
 				Impacto:       "Desarrollo de funcionalidad core",
-				Estado:        "ESPERANDO_FIRMA", // Antes era Status
-				Fecha:         time.Now(),
-				RequiereFirma: true,
+				Estado:        "ESPERANDO_FIRMA",
+				RequiereFirma: true, // Coincide con types.go
 			}
 
 			// Registramos la propuesta en el cerebro del CEO
@@ -68,7 +67,7 @@ func (c *CEO) EjecutarCicloDesarrollo() {
 
 			log.Printf("🤖 IA CEO: Propuesta generada para '%s'.", f.Nombre)
 
-			// Notificación al Jefe (Usamos EnviarMensajeSoberano que definimos antes)
+			// Notificación al Jefe
 			texto := fmt.Sprintf("💡 *NUEVA PROPUESTA DE DESARROLLO*\n\n"+
 				"Módulo: *%s*\n"+
 				"Descripción: %s\n"+
@@ -76,6 +75,7 @@ func (c *CEO) EjecutarCicloDesarrollo() {
 				"Esperando su firma en el Panel de Control.",
 				f.Nombre, f.Descripcion, f.Costo)
 
+			// El método EnviarMensajeSoberano debe estar definido en ceo.go o autonomia.go
 			err := c.EnviarMensajeSoberano(texto)
 			if err != nil {
 				log.Printf("⚠️ Error al notificar al Jefe: %v", err)

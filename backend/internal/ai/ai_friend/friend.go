@@ -1,47 +1,23 @@
 package ai_friend
 
 import (
-	"log"
-	"geochat/internal/ai/ai_ceo" // Importamos para que reconozca al CEO
+	"sync"
 )
 
-// 1. DEFINIMOS LA ESTRUCTURA (Para que no de error 'undefined: Mente1')
+// FriendIA es la entidad que acompaña al usuario
 type FriendIA struct {
-	CEO *ai_ceo.CEO // Conexión necesaria para la recompensa social
+	sync.RWMutex
+	ID   string
 }
 
-// AnalizarEnergia es una función auxiliar del paquete
-func AnalizarEnergia(input string) int {
-	longitud := len(input)
+// EvaluarInteraccion analiza el impacto positivo del mensaje
+func (f *FriendIA) EvaluarInteraccion(userID string, texto string) float64 {
+	f.RLock()
+	defer f.RUnlock()
 	
-	// Nivel 3: Aporte o curiosidad profunda
-	if longitud > 50 {
-		return 3
+	// Lógica básica: si el mensaje es largo, da más puntos
+	if len(texto) > 10 {
+		return 1.5
 	}
-	// Nivel 2: Interacción estándar
-	if longitud > 10 {
-		return 2
-	}
-	// Nivel 1: Ruido
-	return 1
-}
-
-// 2. ACTUALIZAMOS EL MÉTODO (Ahora pertenece a FriendIA)
-func (f *FriendIA) EvaluarInteraccion(usuarioID string, input string) int {
-	puntuacion := AnalizarEnergia(input)
-	
-	// Registro para auditoría del Dueño [cite: 2026-02-10]
-	switch puntuacion {
-case 3:
-		log.Printf("💎 Energía Nivel 3: Usuario %s aportando valor.", usuarioID)
-		
-		// 3. RECOMPENSA SOCIAL: Usamos la conexión al CEO
-		if f.CEO != nil {
-			f.CEO.ProcesarRecompensaSocial(usuarioID, 1.0) // ✅ Correcto			log.Println("📢 AI Friend: Notificando a CEO para bono de equidad del 15%.")
-		}
-	case 1:
-		log.Printf("🛡️ AI Friend: Energía baja detectada de %s. Bloqueando evolución.", usuarioID)
-	}
-    
-	return puntuacion
+	return 1.0
 }

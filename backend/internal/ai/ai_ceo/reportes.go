@@ -8,12 +8,11 @@ import (
 )
 
 // GenerarPropuestaDiaria consolida la información estratégica para tu firma soberana.
-// Esta función es el corazón del crecimiento del 15%. [cite: 2026-02-10]
 func (c *CEO) GenerarPropuestaDiaria() Propuesta {
 	c.RLock()
 	defer c.RUnlock()
 
-	// 1. Recolectamos la evolución técnica detectada por la IA
+	// 1. Recolectamos la evolución técnica detectada (Ya no dará error)
 	evoluciones := c.GetEvolucionesPendientes()
 	numEvoluciones := len(evoluciones)
 
@@ -25,17 +24,19 @@ func (c *CEO) GenerarPropuestaDiaria() Propuesta {
 	
 	log.Println("📊 IA 5 analizando el día:", detalle)
 
-	// 3. Creamos la estructura de la Propuesta
+	// 3. Creamos la estructura de la Propuesta (Campos alineados con types.go)
 	propuesta := Propuesta{
-		ID:                fmt.Sprintf("PROP-%d", time.Now().Unix()),
-		Modulo:            "Evolución Diaria",
-		Monto:             c.FondoGas * 0.05, // Usamos el 5% del fondo operativo
-		ImpactoFinanciero: 5.0,
-		Status:            "PENDIENTE_FIRMA",
-		RequiereFirma:     true,
+		ID:            fmt.Sprintf("PROP-%d", time.Now().Unix()),
+		Modulo:        "Evolución Diaria",
+		Descripcion:   detalle,
+		Monto:         c.FondoGas * 0.05, // Usamos el 5% del fondo operativo
+		Impacto:       "Crecimiento del 15% basado en actividad social",
+		Estado:        "ESPERANDO_FIRMA", // Coincide con tu regla de oro
+		RequiereFirma: true,
+		CreatedAt:     time.Now(),
 	}
 
-	// 4. PERSISTENCIA EN POSTGRES: Para que aparezca en el AdminView automáticamente
+	// 4. PERSISTENCIA EN POSTGRES
 	if database.DB != nil {
 		query := `INSERT INTO tasks (titulo, descripcion, estado) 
 				  VALUES ($1, $2, 'propuesta_ceo')`
